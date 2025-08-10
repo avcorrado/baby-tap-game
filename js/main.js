@@ -35,12 +35,10 @@ toggleModeBtn.onclick = () => {
     calmMode = !calmMode;
     if (calmMode) {
         document.body.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-calm');
-        footer.textContent = "Calm Mode — softer colors and drone sound";
         toggleModeBtn.textContent = "Normal Mode";
         if (!muted) masterGain.gain.value = 0.5;
     } else {
         document.body.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-normal');
-        footer.textContent = "Musical notes & bright visuals";
         toggleModeBtn.textContent = "Calm Mode";
         if (!muted) masterGain.gain.value = 0.8;
     }
