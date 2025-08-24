@@ -10,13 +10,29 @@ window.addEventListener('resize', () => {
 
 const particles = [];
 
+// Visuals toggle
+let visualsEnabled = true; // default ON
+const toggleVisualsBtn = document.getElementById('toggleVisuals');
+
+// Set initial button text
+toggleVisualsBtn.textContent = visualsEnabled ? "Hide Visuals" : "Show Visuals";
+
+toggleVisualsBtn.onclick = () => {
+    visualsEnabled = !visualsEnabled;
+    toggleVisualsBtn.textContent = visualsEnabled ? "Hide Visuals" : "Show Visuals";
+    if (!visualsEnabled) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = getComputedStyle(document.body).backgroundColor;
+        ctx.fillRect(0, 0, W, H);
+    }
+};
+
 function spawnParticle(x, y) {
     const sizeBase = 10 + Math.random() * 20;
     const size = calmMode ? sizeBase * 1.5 : sizeBase;
     const velocityFactor = calmMode ? 1.5 : 1;
     particles.push({
-        x,
-        y,
+        x, y,
         vx: (Math.random() - 0.5) * 4 * velocityFactor,
         vy: (Math.random() - 0.5) * 4 * velocityFactor,
         life: 80,
@@ -32,13 +48,7 @@ function drawParticles() {
         p.y += p.vy;
         p.life--;
         ctx.globalAlpha = Math.max(0, p.life / 80);
-
-        if (calmMode) {
-            ctx.fillStyle = `hsl(${p.hue}, 20%, 80%)`;
-        } else {
-            ctx.fillStyle = `hsl(${p.hue}, 90%, 60%)`;
-        }
-
+        ctx.fillStyle = calmMode ? `hsl(${p.hue}, 20%, 80%)` : `hsl(${p.hue}, 90%, 60%)`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
@@ -46,3 +56,14 @@ function drawParticles() {
         if (p.life <= 0) particles.splice(i, 1);
     }
 }
+
+function loop() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = getComputedStyle(document.body).backgroundColor;
+    ctx.fillRect(0, 0, W, H);
+
+    if (visualsEnabled) drawParticles();
+
+    requestAnimationFrame(loop);
+}
+loop();
