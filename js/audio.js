@@ -7,6 +7,17 @@ masterGain.connect(ac.destination);
 let muted = false;
 let calmMode = false;
 
+function unlockAudio() {
+    if (ac.state !== 'running') {
+        ac.resume().then(() => {
+            console.log('Audio unlocked on iOS');
+        });
+    }
+}
+window.addEventListener('touchstart', unlockAudio, { once: true });
+window.addEventListener('pointerdown', unlockAudio, { once: true });
+window.addEventListener('keydown', unlockAudio, { once: true });
+
 function resumeAudio() {
     if (ac.state !== 'running') ac.resume();
 }
@@ -15,7 +26,7 @@ const scale = [261.63, 293.66, 329.63, 349.23, 392.0, 440.0, 493.88];
 
 function playNiceTone() {
     if (muted) return;
-    resumeAudio();
+    resumeAudio(); // will be safe now, already unlocked on first gesture
     const note = scale[Math.floor(Math.random() * scale.length)];
     const o = ac.createOscillator();
     const g = ac.createGain();
