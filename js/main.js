@@ -1,21 +1,36 @@
+let lastPointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+
 function triggerAction(x, y) {
     playNiceTone();
-    const count = calmMode ? 4 : 8;
-    for (let i = 0; i < count; i++) spawnParticle(x, y);
+    if (visualsEnabled) {
+        const count = calmMode ? 4 : 8;
+        for (let i = 0; i < count; i++) spawnParticle(x, y);
+    }
 }
 
-let lastPointer = { x: W / 2, y: H / 2 };
 window.addEventListener('pointermove', e => {
     lastPointer.x = e.clientX;
     lastPointer.y = e.clientY;
 });
-window.addEventListener('keydown', () => {
-    triggerAction(lastPointer.x, lastPointer.y);
-});
+
 window.addEventListener('pointerdown', e => {
+    // ignore clicks on UI buttons
+    if (e.target.classList.contains('btn')) return;
     triggerAction(e.clientX, e.clientY);
 });
 
+window.addEventListener('keydown', e => {
+    if (/^F\d{1,2}$/.test(e.key)) {
+        e.preventDefault();
+        return;
+    }
+
+    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'BUTTON') return;
+
+    triggerAction(lastPointer.x, lastPointer.y);
+});
+
+// UI buttons
 document.getElementById('mute').onclick = () => {
     muted = !muted;
     document.getElementById('mute').textContent = muted ? 'Unmute' : 'Mute';
@@ -29,8 +44,6 @@ document.getElementById('fullscreen').onclick = () => {
 };
 
 const toggleModeBtn = document.getElementById('toggleMode');
-const footer = document.querySelector('.footer');
-
 toggleModeBtn.onclick = () => {
     calmMode = !calmMode;
     if (calmMode) {
@@ -43,12 +56,3 @@ toggleModeBtn.onclick = () => {
         if (!muted) masterGain.gain.value = 0.8;
     }
 };
-
-function loop() {
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = getComputedStyle(document.body).backgroundColor;
-    ctx.fillRect(0, 0, W, H);
-    drawParticles();
-    requestAnimationFrame(loop);
-}
-loop();
